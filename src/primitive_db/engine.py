@@ -9,3 +9,6 @@ def welcome() -> None:
     command = prompt.string("Введите команду ")
 
     print(f"\nВы ввели команду {command}")
+
+def run():
+    pass

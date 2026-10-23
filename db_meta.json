@@ -1,0 +1,26 @@
+{
+  "products": {
+    "columns": [
+      {
+        "name": "ID",
+        "type": "int"
+      },
+      {
+        "name": "title",
+        "type": "str"
+      }
+    ]
+  },
+  "sdfsdfs": {
+    "columns": [
+      {
+        "name": "ID",
+        "type": "int"
+      },
+      {
+        "name": "title",
+        "type": "str"
+      }
+    ]
+  }
+}
