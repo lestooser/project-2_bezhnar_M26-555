@@ -38,6 +38,65 @@ class Table:
         self.columns = [Column("ID", "int")] + columns
 
 
+class TableData:
+    def __init__(self, data: list[dict]) -> None:
+        self.data = data
+
+    def insert(self, metadata: dict, table_name: str, values: list) -> list[dict]:
+        if table_name not in metadata:
+            raise TableNotFoundError(table_name)
+
+        columns = metadata[table_name]["columns"][1:]
+
+        if len(values) != len(columns):
+            raise InvalidValueError(values)
+
+        for value, col in zip(values, columns):
+            if col["type"] == "int" and (
+                not isinstance(value, int) or isinstance(value, bool)
+            ):
+                raise InvalidValueError(value)
+            elif col["type"] == "str" and not isinstance(value, str):
+                raise InvalidValueError(value)
+            elif col["type"] == "bool" and not isinstance(value, bool):
+                raise InvalidValueError(value)
+
+        new_id = max((row["ID"] for row in self.data), default=0) + 1
+
+        new_row = {"ID": new_id}
+        for value, col in zip(values, columns):
+            new_row[col["name"]] = value
+
+        self.data.append(new_row)
+        return self.data
+
+    def select(self, where_clause: dict | None = None) -> list[dict]:
+        if where_clause is None:
+            return self.data
+
+        return [
+            row
+            for row in self.data
+            if all(row.get(k) == v for k, v in where_clause.items())
+        ]
+
+    def update(self, set_clause: dict, where_clause: dict | None = None) -> list[dict]:
+        for row in self.data:
+            if all(row.get(k) == v for k, v in where_clause.items()):
+                for key, new_v in set_clause.items():
+                    if key in row:
+                        row[key] = new_v
+        return self.data
+
+    def delete(self, where_clause: dict) -> list[dict]:
+        self.data = [
+            row
+            for row in self.data
+            if not all(row.get(k) == v for k, v in where_clause.items())
+        ]
+        return self.data
+
+
 class Database:
     def __init__(self, metadata: dict) -> None:
         self.metadata = metadata
@@ -78,3 +137,25 @@ def drop_table(metadata, table_name) -> dict:
     db = Database(metadata)
     db.drop_table(table_name)
     return db.metadata
+
+
+def insert(
+    metadata: dict, table_data: list[dict], table_name: str, values: list
+) -> list[dict]:
+    table = TableData(table_data)
+    return table.insert(metadata, table_name, values)
+
+
+def select(table_data: list[dict], where_clause: dict | None = None) -> list[dict]:
+    table = TableData(table_data)
+    return table.select(where_clause)
+
+
+def update(table_data: list[dict], set_clause: dict, where_clause: dict) -> list[dict]:
+    table = TableData(table_data)
+    return table.update(set_clause, where_clause)
+
+
+def delete(table_data: list[dict], where_clause: dict) -> list[dict]:
+    table = TableData(table_data)
+    return table.delete(where_clause)

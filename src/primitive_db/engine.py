@@ -3,31 +3,40 @@ import shlex
 import prompt
 from prettytable import PrettyTable
 
-from .core import DatabaseError, TableNotFoundError, create_table, drop_table
-from .parser import parse_condition, parse_values
-from .utils import (
+from .core import (
+    DatabaseError,
+    TableNotFoundError,
+    create_table,
     delete,
+    drop_table,
     insert,
-    load_metadata,
-    load_table_data,
-    save_metadata,
-    save_table_data,
     select,
     update,
 )
+from .parser import parse_condition, parse_values
+from .utils import load_metadata, load_table_data, save_metadata, save_table_data
 
 META_PATH = "db_meta.json"
 
 
 def print_help() -> None:
-    """Prints the help message for the current mode."""
-
     print("\n***Процесс работы с таблицей***")
     print("Функции:")
     print("<command> create_table <имя_таблицы> <столбец1:тип> .. - создать таблицу")
     print("<command> list_tables - показать список всех таблиц")
     print("<command> drop_table <имя_таблицы> - удалить таблицу")
-
+    print(
+        "<command> insert into <имя_таблицы> values (значение1, значение2) - добавить запись"
+    )
+    print("<command> select from <имя_таблицы> - прочитать все записи")
+    print(
+        "<command> select from <имя_таблицы> where <столбец> = <значение> - прочитать по условию"
+    )
+    print(
+        "<command> update <имя_таблицы> set <столбец> = <значение> where <столбец> = <значение> - обновить"
+    )
+    print("<command> delete from <имя_таблицы> where <столбец> = <значение> - удалить")
+    print("<command> info <имя_таблицы> - вывести информацию о таблице")
     print("\nОбщие команды:")
     print("<command> exit - выход из программы")
     print("<command> help - справочная информация\n")
