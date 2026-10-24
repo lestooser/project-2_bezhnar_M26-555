@@ -30,3 +30,15 @@ from primitive_db.utils import save_metadata, load_metadata
 save_metadata("db_meta.json", meta)
 print(load_metadata("db_meta.json"))   # True
 print(meta)
+
+
+from primitive_db.parser import parse_values, parse_condition
+
+# Проверка значений
+print(parse_values('("Sergei", 28, true)'))  # Ожидаем: ['Sergei', 28, True]
+print(parse_values('(1, "Anna", false)'))    # Ожидаем: [1, 'Anna', False]
+
+# Проверка условий
+print(parse_condition("age = 28"))           # Ожидаем: {'age': 28}
+print(parse_condition("name = 'Sergei'"))    # Ожидаем: {'name': 'Sergei'}
+print(parse_condition("is_active = true"))   # Ожидаем: {'is_active': True}

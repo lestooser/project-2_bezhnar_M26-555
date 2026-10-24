@@ -22,5 +22,25 @@
         "type": "str"
       }
     ]
+  },
+  "users": {
+    "columns": [
+      {
+        "name": "ID",
+        "type": "int"
+      },
+      {
+        "name": "name",
+        "type": "str"
+      },
+      {
+        "name": "age",
+        "type": "int"
+      },
+      {
+        "name": "is_activate",
+        "type": "bool"
+      }
+    ]
   }
 }
