@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .core import InvalidValueError, TableNotFoundError
-
 
 class JsonStorage:
     def __init__(self, filepath: str | Path):
@@ -14,16 +12,14 @@ class JsonStorage:
     def load(self) -> dict[str, Any]:
         try:
             with open(self.filepath, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
         except FileNotFoundError:
             return {}
+        return data if isinstance(data, dict) else {}
 
     def save(self, data: dict[str, Any]) -> None:
         with open(self.filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-
-
-
 
 
 def load_metadata(filepath: str | Path) -> dict[str, Any]:

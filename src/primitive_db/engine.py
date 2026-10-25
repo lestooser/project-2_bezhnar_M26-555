@@ -27,14 +27,17 @@ def print_help() -> None:
     print("<command> list_tables - показать список всех таблиц")
     print("<command> drop_table <имя_таблицы> - удалить таблицу")
     print(
-        "<command> insert into <имя_таблицы> values (значение1, значение2) - добавить запись"
+        "<command> insert into <имя_таблицы> values (значение1, значение2) - "
+        "добавить запись"
     )
     print("<command> select from <имя_таблицы> - прочитать все записи")
     print(
-        "<command> select from <имя_таблицы> where <столбец> = <значение> - прочитать по условию"
+        "<command> select from <имя_таблицы> where <столбец> = "
+        "<значение> - прочитать по условию"
     )
     print(
-        "<command> update <имя_таблицы> set <столбец> = <значение> where <столбец> = <значение> - обновить"
+        "<command> update <имя_таблицы> set <столбец> = <значение> where <столбец> = "
+        "<значение> - обновить"
     )
     print("<command> delete from <имя_таблицы> where <столбец> = <значение> - удалить")
     print("<command> info <имя_таблицы> - вывести информацию о таблице")
@@ -77,6 +80,8 @@ def run() -> None:
                         continue
                     table_name, *columns = rest
                     metadata = create_table(metadata, table_name, columns)
+                    if metadata is None:
+                        continue
                     save_metadata(META_PATH, metadata)
                     print(f"Таблица {table_name} создана")
 
@@ -87,8 +92,10 @@ def run() -> None:
 
                     table_name = rest[0]
                     metadata = drop_table(metadata, table_name)
+                    if metadata is None:
+                        continue
+
                     save_metadata(META_PATH, metadata)
-                    # Удаляем файл с данными
                     filepath = Path(f"data/{table_name}.json")
                     if filepath.exists():
                         filepath.unlink()
@@ -109,7 +116,8 @@ def run() -> None:
                     new_id = table_data[-1]["ID"]
                     save_table_data(table_name, table_data)
                     print(
-                        f'Запись с ID={new_id} успешно добавлена в таблицу "{table_name}".'
+                        f"Запись с ID={new_id} успешно "
+                        f'добавлена в таблицу "{table_name}".'
                     )
 
                 case "select":
@@ -152,6 +160,8 @@ def run() -> None:
 
                     table_data = load_table_data(table_name)
                     table_data = delete(table_data, where_clause)
+                    if table_data is None:
+                        continue
                     save_table_data(table_name, table_data)
                     print(f'Запись успешно удалена из таблицы "{table_name}".')
 

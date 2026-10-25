@@ -1,3 +1,14 @@
+from .decorators import confirm_action, create_cacher, handle_db_errors, log_time
+
+_select_cache = create_cacher()
+
+
+def _invalidate_select_cache() -> None:
+    """Сбрасывает кэш select — вызывать при любой мутации данных."""
+    global _select_cache
+    _select_cache = create_cacher()
+
+
 class DatabaseError(Exception):
     """Базовая ошибка в БД"""
 
@@ -109,12 +120,12 @@ class Database:
 
     def create_table(self, table_name: str, columns: list[str]):
         if table_name in self.metadata:
-            raise TableAlreadyExistsError
+            raise TableAlreadyExistsError(table_name)
 
         parsed = [Column("ID", "int")]
         for raw in columns:
             if ":" not in raw:
-                raise InvalidValueError
+                raise InvalidValueError(raw)
             name, type_col = raw.split(":", 1)
             parsed.append(Column(name, type_col))
 
@@ -127,35 +138,48 @@ class Database:
         del self.metadata[table_name]
 
 
+@handle_db_errors
 def create_table(metadata, table_name, columns) -> dict:
     db = Database(metadata)
     db.create_table(table_name, columns)
     return db.metadata
 
 
+@handle_db_errors
+@confirm_action("удаление таблицы")
 def drop_table(metadata, table_name) -> dict:
     db = Database(metadata)
     db.drop_table(table_name)
     return db.metadata
 
 
+@handle_db_errors
+@log_time
 def insert(
     metadata: dict, table_data: list[dict], table_name: str, values: list
 ) -> list[dict]:
     table = TableData(table_data)
+    _invalidate_select_cache()
     return table.insert(metadata, table_name, values)
 
 
+@handle_db_errors
+@log_time
 def select(table_data: list[dict], where_clause: dict | None = None) -> list[dict]:
-    table = TableData(table_data)
-    return table.select(where_clause)
+    key = str(where_clause)
+    return _select_cache(key, lambda: TableData(table_data).select(where_clause))
 
 
+@handle_db_errors
 def update(table_data: list[dict], set_clause: dict, where_clause: dict) -> list[dict]:
+    _invalidate_select_cache()
     table = TableData(table_data)
     return table.update(set_clause, where_clause)
 
 
+@handle_db_errors
+@confirm_action("удаление записей")
 def delete(table_data: list[dict], where_clause: dict) -> list[dict]:
     table = TableData(table_data)
+    _invalidate_select_cache()
     return table.delete(where_clause)

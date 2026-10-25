@@ -73,3 +73,8 @@ text
 Демонстрация работы (Asciinema)
 Ниже представлена запись работы с базой данных (установка, создание таблицы и CRUD-операции):
 https://asciinema.org/a/a3hdyFpYKb7HbZJO
+
+
+
+
+https://asciinema.org/a/6o0bzFmMDEgwH8jB
