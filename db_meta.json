@@ -23,6 +23,26 @@
       }
     ]
   },
+  "pers": {
+    "columns": [
+      {
+        "name": "ID",
+        "type": "int"
+      },
+      {
+        "name": "name",
+        "type": "str"
+      },
+      {
+        "name": "age",
+        "type": "int"
+      },
+      {
+        "name": "is_active",
+        "type": "bool"
+      }
+    ]
+  },
   "users": {
     "columns": [
       {
@@ -38,7 +58,7 @@
         "type": "int"
       },
       {
-        "name": "is_activate",
+        "name": "is_active",
         "type": "bool"
       }
     ]

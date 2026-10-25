@@ -2,13 +2,7 @@
   {
     "ID": 1,
     "name": "Sergei",
-    "age": 28,
-    "is_activate": true
-  },
-  {
-    "ID": 2,
-    "name": "Anna",
-    "age": 22,
-    "is_activate": false
+    "age": 29,
+    "is_active": true
   }
 ]
