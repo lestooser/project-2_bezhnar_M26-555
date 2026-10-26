@@ -2,10 +2,15 @@ import functools
 
 import prompt
 
+from .constants import CONFIRM_YES
+
 
 def handle_db_errors(func):
+    """Перехватывает ошибки БД и печатает понятное сообщение."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        """Выполняет функцию и преобразует ошибки базы данных в сообщения."""
         try:
             return func(*args, **kwargs)
         except FileNotFoundError:
@@ -30,9 +35,13 @@ def handle_db_errors(func):
 
 
 def confirm_action(action_name: str):
+    """Фабрика декораторов: спрашивает y/n перед действием."""
+
     def decorator(func):
+        """Оборачивает функцию запросом подтверждения перед выполнением."""
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            """Запрашивает подтверждение и запускает исходную функцию."""
             from .core import DatabaseError
 
             answer = (
@@ -43,7 +52,7 @@ def confirm_action(action_name: str):
                 .lower()
             )
 
-            if answer != "y":
+            if answer != CONFIRM_YES:
                 raise DatabaseError(f"Действие {action_name} отменено пользователем.")
             return func(*args, **kwargs)
 
@@ -53,10 +62,12 @@ def confirm_action(action_name: str):
 
 
 def log_time(func):
+    """Замеряет время выполнения через time.monotonic()."""
     import time
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        """Измеряет длительность вызова и выводит её даже при ошибке."""
         start = time.monotonic()
         try:
             return func(*args, **kwargs)
@@ -68,9 +79,11 @@ def log_time(func):
 
 
 def create_cacher():
+    """Возвращает кэширующую функцию с dict в замыкании."""
     cache = {}
 
     def cache_result(key, value_func):
+        """Возвращает сохранённый результат либо вычисляет и кэширует его."""
         if key in cache:
             print(f"[cache] hit: {key}")
             return cache[key]

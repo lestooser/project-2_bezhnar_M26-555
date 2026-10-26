@@ -4,6 +4,13 @@ from pathlib import Path
 import prompt
 from prettytable import PrettyTable
 
+from .constants import (
+    CMD_EXIT,
+    CMD_HELP,
+    ID_COLUMN_NAME,
+    META_FILE,
+    TABLE_DATA_TEMPLATE,
+)
 from .core import (
     DatabaseError,
     TableNotFoundError,
@@ -17,10 +24,9 @@ from .core import (
 from .parser import parse_condition, parse_values
 from .utils import load_metadata, load_table_data, save_metadata, save_table_data
 
-META_PATH = "db_meta.json"
-
 
 def print_help() -> None:
+    """Выводит справку по командам интерактивной оболочки."""
     print("\n***Процесс работы с таблицей***")
     print("Функции:")
     print("<command> create_table <имя_таблицы> <столбец1:тип> .. - создать таблицу")
@@ -47,6 +53,7 @@ def print_help() -> None:
 
 
 def run() -> None:
+    """Запускает интерактивный цикл обработки команд базы данных."""
     print("\n ***База данных***")
     print_help()
     while True:
@@ -61,7 +68,7 @@ def run() -> None:
             continue
 
         command, *rest = args
-        if command in ("exit", "help"):
+        if command in (CMD_EXIT, CMD_HELP):
             match command:
                 case "exit":
                     print("Выход из программы")
@@ -70,7 +77,7 @@ def run() -> None:
                     print_help()
             continue
 
-        metadata = load_metadata(META_PATH)
+        metadata = load_metadata(META_FILE)
 
         try:
             match command:
@@ -82,7 +89,7 @@ def run() -> None:
                     metadata = create_table(metadata, table_name, columns)
                     if metadata is None:
                         continue
-                    save_metadata(META_PATH, metadata)
+                    save_metadata(META_FILE, metadata)
                     print(f"Таблица {table_name} создана")
 
                 case "drop_table":
@@ -95,8 +102,8 @@ def run() -> None:
                     if metadata is None:
                         continue
 
-                    save_metadata(META_PATH, metadata)
-                    filepath = Path(f"data/{table_name}.json")
+                    save_metadata(META_FILE, metadata)
+                    filepath = Path(TABLE_DATA_TEMPLATE.format(table_name=table_name))
                     if filepath.exists():
                         filepath.unlink()
 
@@ -112,8 +119,13 @@ def run() -> None:
                     values = parse_values(values_str)
 
                     table_data = load_table_data(table_name)
-                    table_data = insert(metadata, table_data, table_name, values)
-                    new_id = table_data[-1]["ID"]
+
+                    result = insert(metadata, table_data, table_name, values)
+                    if result is None:
+                        continue
+                    table_data = result
+
+                    new_id = table_data[-1][ID_COLUMN_NAME]
                     save_table_data(table_name, table_data)
                     print(
                         f"Запись с ID={new_id} успешно "

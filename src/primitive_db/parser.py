@@ -1,4 +1,5 @@
 def parse_values(values_str: str) -> list:
+    """Разбирает строку значений, преобразуя кавычки, числа и булевы значения."""
     values_str = values_str.strip()
     if values_str.startswith("(") and values_str.endswith(")"):
         values_str = values_str[1:-1]
@@ -28,8 +29,9 @@ def parse_values(values_str: str) -> list:
 
 
 def parse_condition(clause: str) -> dict:
+    """Разбирает условие вида «столбец = значение» в словарь."""
     if "=" not in clause:
-        raise ValueError("Некорректное условие: {clause}")
+        raise ValueError(f"Некорректное условие: {clause}")
 
     col_name, raw_value = clause.split("=", 1)
     col_name = col_name.strip()
